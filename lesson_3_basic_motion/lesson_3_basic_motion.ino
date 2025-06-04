@@ -51,7 +51,7 @@ void loop() {
   /* is a block comment */
 
   // remove the block comment below to see the rover move in all directions
-  /*
+  
   v = -0.346;
   w = 0;
   motor_controller(v,w);
@@ -66,7 +66,7 @@ void loop() {
   w = -4.73;
   motor_controller(v,w);
   delay(1000);
-  */
+  
   // play around with the velocities and the delay() function and see what you can get your robot to do
 }
 
@@ -75,6 +75,17 @@ void loop() {
 // void drive(vel_L, vel_R)
 
 void motor_controller(float v, float w) {
+  float dphi_L = (v/r) - (L * w)/(2 * r);
+  float dphi_R = (v/r) + (L * w)/(2 * r);
+  
+  dphi_L = constrain(dphi_L, -11.52, 11.52);
+  dphi_R = constrain(dphi_R, -11.52, 11.52);
+   
+  int duty_L = map(dphi_L, -11.52, 11.52,-255,255);
+  int duty_R = map(dphi_R, -11.52, 11.52,-255,255);
+
+  drive(duty_L, duty_R);
+
   // determines required wheel speeds (in rad/s) based on linear and angular velocities (m/s, rad/s)
   // maps required wheel speeds to PWM duty cycle
   // expects -0.346 < v < 0.346 m/s, -4.73 < w < 4.73 rad/s
@@ -86,4 +97,32 @@ void drive(int duty_L, int duty_R) {
   // based on PWM duty cycle setting, assigns motor driver pin values
   // expects duty_L and duty_R to be between -255 and 255
 
+  if (duty_L > 0) {
+    digitalWrite(L1,HIGH);
+    digitalWrite(L2,LOW);
+  }
+  if (duty_L < 0) {
+    digitalWrite(L1,LOW);
+    digitalWrite(L2,HIGH);
+  }
+  if (duty_L == 0) {
+    digitalWrite(L1,LOW);
+    digitalWrite(L2,LOW);
+  }
+
+  if (duty_R > 0) {
+    digitalWrite(L1,HIGH);
+    digitalWrite(L2,LOW);
+  }
+  if (duty_R < 0) {
+    digitalWrite(L1,LOW);
+    digitalWrite(L2,HIGH);
+  }
+  if (duty_R == 0) {
+    digitalWrite(L1,LOW);
+    digitalWrite(L2,LOW);
+  }
+
+  analogWrite(pwmL, abs(duty_L));
+  analogWrite(pwmR, abs(duty_R));
 }
